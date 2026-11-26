@@ -1,0 +1,64 @@
+﻿@page
+@model ReportsModel
+@{
+    ViewData["Title"] = "ERP Reports & Live Stock";
+}
+
+<div style="max-width: 1050px; margin: 30px auto; font-family: sans-serif;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h2>Live Stock Status & Kapan Analysis Reports</h2>
+        <a asp-page="/Dashboard" style="text-decoration: none; color: #007bff; font-weight: bold;">← Back to Dashboard</a>
+    </div>
+
+    <!-- 1. Department Wise Stock -->
+    <h4 style="color: #0056b3;">1. Department-Wise Live Packet Stock</h4>
+    <table style="width: 100%; border-collapse: collapse; margin-bottom: 35px; font-size: 14px;">
+        <thead>
+            <tr style="background-color: #e9ecef; text-align: left;">
+                <th style="padding: 10px; border: 1px solid #ddd;">Department Name</th>
+                <th style="padding: 10px; border: 1px solid #ddd; text-align: right;">Total Packets</th>
+                <th style="padding: 10px; border: 1px solid #ddd; text-align: right;">Total Pieces</th>
+                <th style="padding: 10px; border: 1px solid #ddd; text-align: right;">Total Live Carats</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var d in Model.DeptSummaries)
+            {
+                <tr>
+                    <td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">@d.DepartmentName</td>
+                    <td style="padding: 8px; border: 1px solid #ddd; text-align: right;">@d.PacketCount</td>
+                    <td style="padding: 8px; border: 1px solid #ddd; text-align: right;">@d.TotalPcs</td>
+                    <td style="padding: 8px; border: 1px solid #ddd; text-align: right; font-weight: bold; color: #0056b3;">@d.TotalCarats.ToString("0.000")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <!-- 2. Kapan Wise Rough vs Polish & Loss -->
+    <h4 style="color: #28a745;">2. Kapan Rough Inward vs Active Weight & Manufacturing Loss (Ghat)</h4>
+    <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+        <thead>
+            <tr style="background-color: #e9ecef; text-align: left;">
+                <th style="padding: 10px; border: 1px solid #ddd;">Kapan No</th>
+                <th style="padding: 10px; border: 1px solid #ddd;">Supplier Party</th>
+                <th style="padding: 10px; border: 1px solid #ddd; text-align: right;">Inward Rough Crt</th>
+                <th style="padding: 10px; border: 1px solid #ddd; text-align: right;">Packets Created</th>
+                <th style="padding: 10px; border: 1px solid #ddd; text-align: right;">Current Packet Crt</th>
+                <th style="padding: 10px; border: 1px solid #ddd; text-align: right;">Total Loss (Ghat)</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var k in Model.KapanComparisons)
+            {
+                <tr>
+                    <td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">@k.KapanNo</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">@k.PartyName</td>
+                    <td style="padding: 8px; border: 1px solid #ddd; text-align: right; font-weight: bold;">@k.RoughCarats.ToString("0.000")</td>
+                    <td style="padding: 8px; border: 1px solid #ddd; text-align: right;">@k.PacketsCreated</td>
+                    <td style="padding: 8px; border: 1px solid #ddd; text-align: right; color: #28a745; font-weight: bold;">@k.CurrentActiveCarats.ToString("0.000")</td>
+                    <td style="padding: 8px; border: 1px solid #ddd; text-align: right; color: #dc3545; font-weight: bold;">@k.TotalLossCarats.ToString("0.000")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

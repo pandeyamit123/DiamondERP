@@ -1,0 +1,137 @@
+﻿@page
+@model StockInwardModel
+@{
+    ViewData["Title"] = "Stock Inward";
+}
+
+<div style="max-width: 1100px; margin: 30px auto; font-family: sans-serif;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h2>Rough Stock Inward</h2>
+        <a asp-page="/Dashboard" style="text-decoration: none; color: #007bff; font-weight: bold;">← Back to Dashboard</a>
+    </div>
+
+    @if (!string.IsNullOrEmpty(Model.Message))
+    {
+        <div style="background-color: #d4edda; color: #155724; padding: 10px; border-radius: 4px; margin-bottom: 15px;">@Model.Message</div>
+    }
+    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+    {
+        <div style="background-color: #f8d7da; color: #721c24; padding: 10px; border-radius: 4px; margin-bottom: 15px;">@Model.ErrorMessage</div>
+    }
+
+    <!-- Stock Inward Entry Form -->
+    <div style="border: 1px solid #ccc; padding: 20px; border-radius: 6px; margin-bottom: 30px; background-color: #fdfdfd;">
+        <h4 style="margin-top: 0; margin-bottom: 15px;">New Stock Inward Entry</h4>
+        <form method="post" asp-page-handler="Add">
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 15px;">
+                <div>
+                    <label style="display: block; font-size: 13px; margin-bottom: 4px;">Inward Date</label>
+                    <input type="date" asp-for="InwardDate" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;" required />
+                </div>
+                <div>
+                    <label style="display: block; font-size: 13px; margin-bottom: 4px;">Kapan / Lot No</label>
+                    <input type="text" asp-for="KapanNo" placeholder="e.g. K-101" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;" required />
+                </div>
+                <div style="grid-column: span 2;">
+                    <label style="display: block; font-size: 13px; margin-bottom: 4px;">Party / Supplier Name</label>
+                    <input type="text" asp-for="PartyName" placeholder="Enter supplier or broker name" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;" required />
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 15px;">
+                <div>
+                    <label style="display: block; font-size: 13px; margin-bottom: 4px;">Rough Type</label>
+                    <select asp-for="RoughTypeID" asp-items="Model.RoughTypes" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;" required></select>
+                </div>
+                <div>
+                    <label style="display: block; font-size: 13px; margin-bottom: 4px;">Rough Size</label>
+                    <select asp-for="RoughSizeID" asp-items="Model.RoughSizes" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;" required></select>
+                </div>
+                <div>
+                    <label style="display: block; font-size: 13px; margin-bottom: 4px;">Rough Color</label>
+                    <select asp-for="RoughColorID" asp-items="Model.RoughColors" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;" required></select>
+                </div>
+                <div>
+                    <label style="display: block; font-size: 13px; margin-bottom: 4px;">Rough Purity</label>
+                    <select asp-for="RoughPurityID" asp-items="Model.RoughPurities" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;" required></select>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; align-items: end;">
+                <div>
+                    <label style="display: block; font-size: 13px; margin-bottom: 4px;">Pieces</label>
+                    <input type="number" asp-for="Pieces" value="0" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;" />
+                </div>
+                <div>
+                    <label style="display: block; font-size: 13px; margin-bottom: 4px;">Carats (Weight)</label>
+                    <input type="number" step="0.001" id="crtInput" asp-for="Carats" oninput="calcTotal()" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;" required />
+                </div>
+                <div>
+                    <label style="display: block; font-size: 13px; margin-bottom: 4px;">Rate (Per Carat)</label>
+                    <input type="number" step="0.01" id="rateInput" asp-for="Rate" oninput="calcTotal()" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;" required />
+                </div>
+                <div>
+                    <label style="display: block; font-size: 13px; margin-bottom: 4px;">Total Amount: <strong id="totalDisplay" style="color: #28a745;">0.00</strong></label>
+                    <button type="submit" style="width: 100%; padding: 9px; background-color: #28a745; color: white; font-weight: bold; border: none; border-radius: 4px; cursor: pointer;">Save Stock Inward</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Inward Records Table -->
+    <h4>Recent Stock Inward Entries</h4>
+    <div style="overflow-x: auto;">
+        <table style="width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 14px;">
+            <thead>
+                <tr style="background-color: #f1f1f1; text-align: left;">
+                    <th style="padding: 10px; border: 1px solid #ddd;">ID</th>
+                    <th style="padding: 10px; border: 1px solid #ddd;">Date</th>
+                    <th style="padding: 10px; border: 1px solid #ddd;">Kapan No</th>
+                    <th style="padding: 10px; border: 1px solid #ddd;">Party</th>
+                    <th style="padding: 10px; border: 1px solid #ddd;">Type / Size / Color / Purity</th>
+                    <th style="padding: 10px; border: 1px solid #ddd; text-align: right;">Pcs</th>
+                    <th style="padding: 10px; border: 1px solid #ddd; text-align: right;">Carats</th>
+                    <th style="padding: 10px; border: 1px solid #ddd; text-align: right;">Rate</th>
+                    <th style="padding: 10px; border: 1px solid #ddd; text-align: right;">Amount</th>
+                    <th style="padding: 10px; border: 1px solid #ddd; text-align: center;">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.InwardList.Count == 0)
+                {
+                    <tr><td colspan="10" style="padding: 15px; text-align: center; color: #888; border: 1px solid #ddd;">No stock inward entries yet.</td></tr>
+                }
+                else
+                {
+                    @foreach (var item in Model.InwardList)
+                    {
+                        <tr>
+                            <td style="padding: 8px; border: 1px solid #ddd;">@item.InwardID</td>
+                            <td style="padding: 8px; border: 1px solid #ddd;">@item.InwardDate.ToString("dd-MMM-yyyy")</td>
+                            <td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">@item.KapanNo</td>
+                            <td style="padding: 8px; border: 1px solid #ddd;">@item.PartyName</td>
+                            <td style="padding: 8px; border: 1px solid #ddd;">@item.RoughTypeName | @item.RoughSizeName | @item.RoughColorName | @item.RoughPurityName</td>
+                            <td style="padding: 8px; border: 1px solid #ddd; text-align: right;">@item.Pieces</td>
+                            <td style="padding: 8px; border: 1px solid #ddd; text-align: right; font-weight: bold;">@item.Carats.ToString("0.000")</td>
+                            <td style="padding: 8px; border: 1px solid #ddd; text-align: right;">@item.Rate.ToString("0.00")</td>
+                            <td style="padding: 8px; border: 1px solid #ddd; text-align: right; color: #28a745; font-weight: bold;">@item.TotalAmount.ToString("0.00")</td>
+                            <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">
+                                <form method="post" asp-page-handler="Delete" asp-route-id="@item.InwardID" onsubmit="return confirm('Delete Kapan @item.KapanNo?');" style="margin: 0;">
+                                    <button type="submit" style="background-color: #dc3545; color: white; border: none; padding: 4px 8px; border-radius: 3px; font-size: 12px; cursor: pointer;">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    function calcTotal() {
+        var crt = parseFloat(document.getElementById('crtInput').value) || 0;
+        var rate = parseFloat(document.getElementById('rateInput').value) || 0;
+        document.getElementById('totalDisplay').innerText = (crt * rate).toFixed(2);
+    }
+</script>

@@ -1,0 +1,38 @@
+﻿@page
+@model CompanySelectionModel
+@{
+    ViewData["Title"] = "Select Financial Year";
+}
+
+<div style="display: flex; justify-content: center; align-items: center; min-height: 70vh;">
+    <div style="border: 1px solid #ccc; padding: 30px; border-radius: 8px; width: 400px;">
+        <h3 style="text-align: center; margin-bottom: 20px;">Company & Financial Year</h3>
+
+        @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+        {
+            <div style="color: red; margin-bottom: 15px; text-align: center;">
+                @Model.ErrorMessage
+            </div>
+        }
+
+        <form method="post">
+            <div style="margin-bottom: 15px;">
+                <label style="display: block; margin-bottom: 5px;">Select Company</label>
+                <select asp-for="SelectedCompanyId" asp-items="Model.Companies" style="width: 100%; padding: 8px; box-sizing: border-box;">
+                    <option value="">-- Choose Company --</option>
+                </select>
+            </div>
+
+            <div style="margin-bottom: 20px;">
+                <label style="display: block; margin-bottom: 5px;">Select Financial Year</label>
+                <select asp-for="SelectedYearId" asp-items="Model.FinancialYears" style="width: 100%; padding: 8px; box-sizing: border-box;">
+                    <option value="">-- Choose Financial Year --</option>
+                </select>
+            </div>
+
+            <button type="submit" style="width: 100%; padding: 10px; background-color: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                Continue to Dashboard
+            </button>
+        </form>
+    </div>
+</div>

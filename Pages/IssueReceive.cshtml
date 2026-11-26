@@ -1,0 +1,125 @@
+﻿@page
+@model IssueReceiveModel
+@{
+    ViewData["Title"] = "Packet Issue & Receive";
+}
+
+<div style="max-width: 1050px; margin: 30px auto; font-family: sans-serif;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h2>Employee Packet Issue & Receive</h2>
+        <a asp-page="/Dashboard" style="text-decoration: none; color: #007bff; font-weight: bold;">← Back to Dashboard</a>
+    </div>
+
+    @if (!string.IsNullOrEmpty(Model.Message))
+    {
+        <div style="background-color: #d4edda; color: #155724; padding: 10px; border-radius: 4px; margin-bottom: 15px;">@Model.Message</div>
+    }
+    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+    {
+        <div style="background-color: #f8d7da; color: #721c24; padding: 10px; border-radius: 4px; margin-bottom: 15px;">@Model.ErrorMessage</div>
+    }
+
+    <!-- 1. Issue Packet Form -->
+    <div style="border: 1px solid #ccc; padding: 20px; border-radius: 6px; margin-bottom: 30px; background-color: #fdfdfd;">
+        <h4 style="margin-top: 0; margin-bottom: 15px; color: #0056b3;">1. Issue Packet to Employee</h4>
+        <form method="post" asp-page-handler="Issue" style="display: grid; grid-template-columns: 2fr 1.5fr 1fr; gap: 15px; align-items: end;">
+            <div>
+                <label style="display: block; font-size: 13px; margin-bottom: 4px;">Select Available Packet</label>
+                <select asp-for="SelectedKPID" asp-items="Model.AvailablePackets" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;" required>
+                    <option value="">-- Choose Packet --</option>
+                </select>
+            </div>
+            <div>
+                <label style="display: block; font-size: 13px; margin-bottom: 4px;">Select Employee (Karigar)</label>
+                <select asp-for="SelectedEmployeeID" asp-items="Model.Employees" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;" required>
+                    <option value="">-- Choose Employee --</option>
+                </select>
+            </div>
+            <div>
+                <button type="submit" style="width: 100%; padding: 9px; background-color: #007bff; color: white; font-weight: bold; border: none; border-radius: 4px; cursor: pointer;">Issue Packet</button>
+            </div>
+        </form>
+    </div>
+
+    <!-- 2. Currently Issued Packets (Pending Receive) -->
+    <h4 style="color: #856404;">2. Pending With Employees (Enter Return Weight to Receive)</h4>
+    <table style="width: 100%; border-collapse: collapse; margin-bottom: 35px; font-size: 14px;">
+        <thead>
+            <tr style="background-color: #fff3cd; text-align: left;">
+                <th style="padding: 10px; border: 1px solid #ddd;">Packet</th>
+                <th style="padding: 10px; border: 1px solid #ddd;">Dept</th>
+                <th style="padding: 10px; border: 1px solid #ddd;">Employee</th>
+                <th style="padding: 10px; border: 1px solid #ddd;">Issue Date</th>
+                <th style="padding: 10px; border: 1px solid #ddd; text-align: right;">Issued Pcs</th>
+                <th style="padding: 10px; border: 1px solid #ddd; text-align: right;">Issued Crt</th>
+                <th style="padding: 10px; border: 1px solid #ddd; width: 340px;">Receive Entry (Return Pcs & Ready Crt)</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model.ActiveIssues.Count == 0)
+            {
+                <tr><td colspan="7" style="padding: 15px; text-align: center; color: #888; border: 1px solid #ddd;">No packets currently pending with employees.</td></tr>
+            }
+            else
+            {
+                @foreach (var item in Model.ActiveIssues)
+                {
+                    <tr>
+                        <td style="padding: 8px; border: 1px solid #ddd; font-weight: bold; color: #0056b3;">@item.DisplayName</td>
+                        <td style="padding: 8px; border: 1px solid #ddd;">@item.DepartmentName</td>
+                        <td style="padding: 8px; border: 1px solid #ddd; font-weight: 500;">@item.EmployeeName</td>
+                        <td style="padding: 8px; border: 1px solid #ddd;">@item.IssueDate.ToString("dd-MMM HH:mm")</td>
+                        <td style="padding: 8px; border: 1px solid #ddd; text-align: right;">@item.IssuePcs</td>
+                        <td style="padding: 8px; border: 1px solid #ddd; text-align: right; font-weight: bold;">@item.IssueCarats.ToString("0.000")</td>
+                        <td style="padding: 8px; border: 1px solid #ddd;">
+                            <form method="post" asp-page-handler="Receive" style="display: flex; gap: 6px; margin: 0;">
+                                <input type="hidden" name="issueId" value="@item.IssueID" />
+                                <input type="hidden" name="kpid" value="@item.KPID" />
+                                <input type="number" name="returnPcs" value="@item.IssuePcs" style="width: 65px; padding: 5px; border: 1px solid #ccc; border-radius: 3px;" title="Return Pcs" required />
+                                <input type="number" step="0.001" name="returnCarats" placeholder="Ready Crt" style="width: 110px; padding: 5px; border: 1px solid #ccc; border-radius: 3px;" required />
+                                <button type="submit" style="background-color: #28a745; color: white; border: none; padding: 5px 12px; border-radius: 3px; font-weight: bold; cursor: pointer;">Receive</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+
+    <!-- 3. Completed Issue/Receive History -->
+    <h4 style="color: #28a745;">3. Completed Issue / Receive History</h4>
+    <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+        <thead>
+            <tr style="background-color: #f1f1f1; text-align: left;">
+                <th style="padding: 8px; border: 1px solid #ddd;">Packet</th>
+                <th style="padding: 8px; border: 1px solid #ddd;">Dept</th>
+                <th style="padding: 8px; border: 1px solid #ddd;">Employee</th>
+                <th style="padding: 8px; border: 1px solid #ddd; text-align: right;">Issue Crt</th>
+                <th style="padding: 8px; border: 1px solid #ddd; text-align: right;">Ready Crt</th>
+                <th style="padding: 8px; border: 1px solid #ddd; text-align: right;">Loss (Ghat)</th>
+                <th style="padding: 8px; border: 1px solid #ddd;">Receive Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model.CompletedHistory.Count == 0)
+            {
+                <tr><td colspan="7" style="padding: 15px; text-align: center; color: #888; border: 1px solid #ddd;">No completed transactions yet.</td></tr>
+            }
+            else
+            {
+                @foreach (var h in Model.CompletedHistory)
+                {
+                    <tr>
+                        <td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">@h.DisplayName</td>
+                        <td style="padding: 8px; border: 1px solid #ddd;">@h.DepartmentName</td>
+                        <td style="padding: 8px; border: 1px solid #ddd;">@h.EmployeeName</td>
+                        <td style="padding: 8px; border: 1px solid #ddd; text-align: right;">@h.IssueCarats.ToString("0.000")</td>
+                        <td style="padding: 8px; border: 1px solid #ddd; text-align: right; font-weight: bold; color: #28a745;">@h.ReceiveCarats?.ToString("0.000")</td>
+                        <td style="padding: 8px; border: 1px solid #ddd; text-align: right; color: #dc3545; font-weight: bold;">@h.LossCarats?.ToString("0.000")</td>
+                        <td style="padding: 8px; border: 1px solid #ddd;">@h.ReceiveDate?.ToString("dd-MMM-yyyy HH:mm")</td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>

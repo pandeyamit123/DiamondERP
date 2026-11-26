@@ -1,0 +1,89 @@
+﻿@page
+@model DepartmentMasterModel
+@{
+    ViewData["Title"] = "Department Master";
+}
+
+<div style="max-width: 750px; margin: 30px auto; font-family: sans-serif;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h2>Department Master</h2>
+        <a asp-page="/Dashboard" style="text-decoration: none; color: #007bff; font-weight: bold;">← Back to Dashboard</a>
+    </div>
+
+    @if (!string.IsNullOrEmpty(Model.Message))
+    {
+        <div style="background-color: #d4edda; color: #155724; padding: 10px; border-radius: 4px; margin-bottom: 15px;">
+            @Model.Message
+        </div>
+    }
+
+    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+    {
+        <div style="background-color: #f8d7da; color: #721c24; padding: 10px; border-radius: 4px; margin-bottom: 15px;">
+            @Model.ErrorMessage
+        </div>
+    }
+
+    @if (Model.IsEditing)
+    {
+        <!-- Edit Department Form -->
+        <div style="border: 2px solid #ffc107; padding: 15px; border-radius: 6px; margin-bottom: 25px; background-color: #fffdf5;">
+            <h4 style="margin-top: 0; color: #856404;">Edit Department (ID: @Model.EditDepartmentId)</h4>
+            <form method="post" asp-page-handler="Update" style="display: flex; gap: 10px; margin-top: 10px;">
+                <input type="hidden" asp-for="EditDepartmentId" />
+                <input type="text" asp-for="EditDepartmentName" style="flex: 1; padding: 8px; border: 1px solid #ccc; border-radius: 4px;" required />
+                <button type="submit" style="padding: 8px 18px; background-color: #ffc107; color: #212529; font-weight: bold; border: none; border-radius: 4px; cursor: pointer;">Update</button>
+                <a asp-page="/DepartmentMaster" style="display: inline-block; padding: 8px 14px; background-color: #6c757d; color: white; text-decoration: none; border-radius: 4px;">Cancel</a>
+            </form>
+        </div>
+    }
+    else
+    {
+        <!-- Add New Department Form -->
+        <div style="border: 1px solid #ccc; padding: 15px; border-radius: 6px; margin-bottom: 25px; background-color: #fdfdfd;">
+            <h4 style="margin-top: 0;">Add New Department</h4>
+            <form method="post" asp-page-handler="Add" style="display: flex; gap: 10px; margin-top: 10px;">
+                <input type="text" asp-for="NewDepartmentName" placeholder="Enter department name (e.g. SAWING)" style="flex: 1; padding: 8px; border: 1px solid #ccc; border-radius: 4px;" required />
+                <button type="submit" style="padding: 8px 18px; background-color: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer;">Save</button>
+            </form>
+        </div>
+    }
+
+    <!-- Department List Table -->
+    <h4>Existing Departments</h4>
+    <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+        <thead>
+            <tr style="background-color: #f1f1f1; text-align: left;">
+                <th style="padding: 10px; border: 1px solid #ddd; width: 70px;">ID</th>
+                <th style="padding: 10px; border: 1px solid #ddd;">Department Name</th>
+                <th style="padding: 10px; border: 1px solid #ddd; width: 150px; text-align: center;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model.Departments.Count == 0)
+            {
+                <tr>
+                    <td colspan="3" style="padding: 15px; text-align: center; color: #888; border: 1px solid #ddd;">No departments found.</td>
+                </tr>
+            }
+            else
+            {
+                @foreach (var dept in Model.Departments)
+                {
+                    <tr>
+                        <td style="padding: 8px; border: 1px solid #ddd;">@dept.DepartmentID</td>
+                        <td style="padding: 8px; border: 1px solid #ddd;">@dept.DepartmentName</td>
+                        <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">
+                            <div style="display: flex; gap: 8px; justify-content: center;">
+                                <a asp-page="/DepartmentMaster" asp-route-editId="@dept.DepartmentID" style="background-color: #ffc107; color: #212529; text-decoration: none; padding: 5px 10px; border-radius: 3px; font-size: 13px; font-weight: bold;">Edit</a>
+                                <form method="post" asp-page-handler="Delete" asp-route-id="@dept.DepartmentID" onsubmit="return confirm('Are you sure you want to delete @dept.DepartmentName?');" style="margin: 0;">
+                                    <button type="submit" style="background-color: #dc3545; color: white; border: none; padding: 5px 10px; border-radius: 3px; font-size: 13px; cursor: pointer;">Delete</button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>

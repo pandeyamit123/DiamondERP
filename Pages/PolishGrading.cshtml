@@ -1,0 +1,104 @@
+﻿@page
+@model PolishGradingModel
+@{
+    ViewData["Title"] = "Polish Grading & Outward";
+}
+
+<div style="max-width: 1100px; margin: 30px auto; font-family: sans-serif;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h2>Final Polish Grading & Stock Outward</h2>
+        <a asp-page="/Dashboard" style="text-decoration: none; color: #007bff; font-weight: bold;">← Back to Dashboard</a>
+    </div>
+
+    @if (!string.IsNullOrEmpty(Model.Message))
+    {
+        <div style="background-color: #d4edda; color: #155724; padding: 10px; border-radius: 4px; margin-bottom: 15px;">@Model.Message</div>
+    }
+    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+    {
+        <div style="background-color: #f8d7da; color: #721c24; padding: 10px; border-radius: 4px; margin-bottom: 15px;">@Model.ErrorMessage</div>
+    }
+
+    <div style="border: 1px solid #ccc; padding: 20px; border-radius: 6px; margin-bottom: 30px; background-color: #fdfdfd;">
+        <h4 style="margin-top: 0; color: #6f42c1;">Enter Polish Grading Details</h4>
+        <form method="post" asp-page-handler="Grade">
+            <div style="display: grid; grid-template-columns: 1.5fr 1fr 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                <div>
+                    <label style="display: block; font-size: 13px; margin-bottom: 4px;">Select Packet</label>
+                    <select asp-for="SelectedKPID" asp-items="Model.Packets" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;" required>
+                        <option value="">-- Choose Packet --</option>
+                    </select>
+                </div>
+                <div>
+                    <label style="display: block; font-size: 13px; margin-bottom: 4px;">Shape</label>
+                    <select asp-for="ShapeID" asp-items="Model.Shapes" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;"></select>
+                </div>
+                <div>
+                    <label style="display: block; font-size: 13px; margin-bottom: 4px;">Color</label>
+                    <select asp-for="ColorID" asp-items="Model.Colors" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;"></select>
+                </div>
+                <div>
+                    <label style="display: block; font-size: 13px; margin-bottom: 4px;">Clarity</label>
+                    <select asp-for="ClarityID" asp-items="Model.Clarities" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;"></select>
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1.5fr; gap: 15px; align-items: end;">
+                <div>
+                    <label style="display: block; font-size: 13px; margin-bottom: 4px;">Polish Pcs</label>
+                    <input type="number" asp-for="PolishPcs" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;" required />
+                </div>
+                <div>
+                    <label style="display: block; font-size: 13px; margin-bottom: 4px;">Polish Carats</label>
+                    <input type="number" step="0.001" asp-for="PolishCarats" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;" required />
+                </div>
+                <div>
+                    <label style="display: block; font-size: 13px; margin-bottom: 4px;">Rate / Carat</label>
+                    <input type="number" step="0.01" asp-for="RapRate" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;" required />
+                </div>
+                <div>
+                    <button type="submit" style="width: 100%; padding: 9px; background-color: #6f42c1; color: white; font-weight: bold; border: none; border-radius: 4px; cursor: pointer;">Save Polish Grading</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <h4>Graded Polish Diamonds & Sales Outward</h4>
+    <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+        <thead>
+            <tr style="background-color: #f1f1f1; text-align: left;">
+                <th style="padding: 10px; border: 1px solid #ddd;">Packet</th>
+                <th style="padding: 10px; border: 1px solid #ddd;">Parameters (Shape / Color / Clarity)</th>
+                <th style="padding: 10px; border: 1px solid #ddd; text-align: right;">Polish Crt</th>
+                <th style="padding: 10px; border: 1px solid #ddd; text-align: right;">Est. Value</th>
+                <th style="padding: 10px; border: 1px solid #ddd;">Outward / Sale Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var g in Model.GradedList)
+            {
+                <tr>
+                    <td style="padding: 8px; border: 1px solid #ddd; font-weight: bold;">@g.DisplayName</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">@g.ShapeName | <strong>@g.ColorName</strong> | <strong>@g.ClarityName</strong></td>
+                    <td style="padding: 8px; border: 1px solid #ddd; text-align: right; font-weight: bold;">@g.PolishCarats.ToString("0.000")</td>
+                    <td style="padding: 8px; border: 1px solid #ddd; text-align: right;">@g.TotalValue.ToString("0.00")</td>
+                    <td style="padding: 8px; border: 1px solid #ddd;">
+                        @if (g.OutwardStatus == "InStock")
+                        {
+                            <form method="post" asp-page-handler="Sell" style="display: flex; gap: 6px; margin: 0;">
+                                <input type="hidden" name="gradingId" value="@g.GradingID" />
+                                <input type="text" name="buyerName" placeholder="Buyer Party Name" style="padding: 5px; border: 1px solid #ccc; border-radius: 3px;" required />
+                                <input type="number" step="0.01" name="saleAmount" value="@g.TotalValue" style="width: 100px; padding: 5px; border: 1px solid #ccc; border-radius: 3px;" required />
+                                <button type="submit" style="background-color: #28a745; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer;">Sell / Outward</button>
+                            </form>
+                        }
+                        else
+                        {
+                            <span style="color: #28a745; font-weight: bold;">SOLD to @g.BuyerName (@g.SaleAmount?.ToString("0.00"))</span>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

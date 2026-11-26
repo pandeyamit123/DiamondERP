@@ -1,0 +1,62 @@
+﻿@page
+@{
+    ViewData["Title"] = "Main Dashboard";
+    var userName = User.Identity?.Name ?? "User";
+    var companyName = User.FindFirst("CompanyName")?.Value ?? "Not Selected";
+    var finYear = User.FindFirst("FinancialYear")?.Value ?? "N/A";
+}
+
+<div style="max-width: 1100px; margin: 20px auto; padding: 20px; font-family: sans-serif;">
+    <div style="display: flex; justify-content: space-between; align-items: center; background-color: #f1f5f9; padding: 15px 20px; border-radius: 8px; border: 1px solid #cbd5e1;">
+        <div>
+            <h2 style="margin: 0 0 5px 0; color: #0f172a;">S. Vinodkumar Diamond ERP</h2>
+            <div style="font-size: 14px; color: #334155;">
+                <span>Company: <strong>@companyName</strong></span> &nbsp;|&nbsp;
+                <span>Year: <strong>@finYear</strong></span> &nbsp;|&nbsp;
+                <span>Logged in as: <strong style="color: #007bff;">@userName</strong></span>
+            </div>
+        </div>
+        <div style="display: flex; gap: 10px; align-items: center;">
+            <a asp-page="/CompanySelection" style="padding: 8px 14px; background-color: #6c757d; color: white; border-radius: 4px; text-decoration: none; font-size: 13px;">Change Company/Year</a>
+            <form method="post" asp-page="/Index" asp-page-handler="Logout" style="margin: 0;">
+                <button type="submit" style="padding: 8px 16px; background-color: #dc3545; color: white; border: none; border-radius: 4px; font-weight: bold; cursor: pointer;">Logout</button>
+            </form>
+        </div>
+    </div>
+    <hr style="margin: 20px 0;" />
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;">
+        <!-- 1. Masters Card -->
+        <div style="border: 1px solid #ddd; padding: 20px; border-radius: 8px; background-color: #f8f9fa;">
+            <h4 style="margin-top: 0; color: #0056b3;">1. Masters Setup</h4>
+            <p style="font-size: 13px; color: #555;">Configure departments, employees, and rough diamond parameters.</p>
+            <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 15px;">
+                <a asp-page="/DepartmentMaster" style="padding: 10px; background-color: #007bff; color: white; border-radius: 4px; text-decoration: none; text-align: center; font-weight: bold;">Department Master</a>
+                <a asp-page="/EmployeeMaster" style="padding: 10px; background-color: #17a2b8; color: white; border-radius: 4px; text-decoration: none; text-align: center; font-weight: bold;">Employee (Karigar) Master</a>
+                <a asp-page="/RoughMasters" style="padding: 10px; background-color: #6f42c1; color: white; border-radius: 4px; text-decoration: none; text-align: center; font-weight: bold;">Rough Type / Size / Color / Purity</a>
+            </div>
+        </div>
+
+        <!-- 2. Transactions Card -->
+        <div style="border: 1px solid #ddd; padding: 20px; border-radius: 8px; background-color: #f8f9fa;">
+            <h4 style="margin-top: 0; color: #28a745;">2. Manufacturing Transactions</h4>
+            <p style="font-size: 13px; color: #555;">Daily rough inward, packet creation, employee issue/receive & transfers.</p>
+            <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 15px;">
+                <a asp-page="/StockInward" style="padding: 10px; background-color: #28a745; color: white; border-radius: 4px; text-decoration: none; text-align: center; font-weight: bold;">1. Rough Stock Inward</a>
+                <a asp-page="/KapanPacketMaster" style="padding: 10px; background-color: #0056b3; color: white; border-radius: 4px; text-decoration: none; text-align: center; font-weight: bold;">2. Kapan Packet Creation</a>
+                <a asp-page="/IssueReceive" style="padding: 10px; background-color: #fd7e14; color: white; border-radius: 4px; text-decoration: none; text-align: center; font-weight: bold;">3. Employee Issue & Receive (Ghat)</a>
+                <a asp-page="/DepartmentTransfer" style="padding: 10px; background-color: #20c997; color: white; border-radius: 4px; text-decoration: none; text-align: center; font-weight: bold;">4. Department Transfer & Receive</a>
+                <a asp-page="/PolishGrading" style="padding: 10px; background-color: #6610f2; color: white; border-radius: 4px; text-decoration: none; text-align: center; font-weight: bold;">5. Polish Grading & Sales Outward</a>
+            </div>
+        </div>
+
+        <!-- 3. Reports Card -->
+        <div style="border: 1px solid #ddd; padding: 20px; border-radius: 8px; background-color: #f8f9fa;">
+            <h4 style="margin-top: 0; color: #dc3545;">3. Live Reports & Stock</h4>
+            <p style="font-size: 13px; color: #555;">Real-time department stock, Kapan balance, and weight loss analysis.</p>
+            <div style="display: flex; flex-direction: column; gap: 10px; margin-top: 15px;">
+                <a asp-page="/Reports" style="padding: 12px; background-color: #343a40; color: white; border-radius: 4px; text-decoration: none; text-align: center; font-weight: bold;">View Live Stock & Kapan Reports</a>
+            </div>
+        </div>
+    </div>
+</div>

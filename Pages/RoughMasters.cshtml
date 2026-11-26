@@ -1,0 +1,80 @@
+﻿@page
+@model RoughMastersModel
+@{
+    ViewData["Title"] = Model.CurrentTitle;
+}
+
+<div style="max-width: 750px; margin: 30px auto; font-family: sans-serif;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h2>@Model.CurrentTitle</h2>
+        <a asp-page="/Dashboard" style="text-decoration: none; color: #007bff; font-weight: bold;">← Back to Dashboard</a>
+    </div>
+
+    <!-- Category Tabs -->
+    <div style="display: flex; gap: 10px; margin-bottom: 20px; border-bottom: 2px solid #eee; padding-bottom: 10px;">
+        <a asp-page="/RoughMasters" asp-route-Category="Type" style="padding: 8px 16px; border-radius: 4px; text-decoration: none; font-weight: bold; background-color: @(Model.Category == "Type" ? "#007bff" : "#e9ecef"); color: @(Model.Category == "Type" ? "white" : "#333");">Rough Type</a>
+        <a asp-page="/RoughMasters" asp-route-Category="Size" style="padding: 8px 16px; border-radius: 4px; text-decoration: none; font-weight: bold; background-color: @(Model.Category == "Size" ? "#007bff" : "#e9ecef"); color: @(Model.Category == "Size" ? "white" : "#333");">Rough Size</a>
+        <a asp-page="/RoughMasters" asp-route-Category="Color" style="padding: 8px 16px; border-radius: 4px; text-decoration: none; font-weight: bold; background-color: @(Model.Category == "Color" ? "#007bff" : "#e9ecef"); color: @(Model.Category == "Color" ? "white" : "#333");">Rough Color</a>
+        <a asp-page="/RoughMasters" asp-route-Category="Purity" style="padding: 8px 16px; border-radius: 4px; text-decoration: none; font-weight: bold; background-color: @(Model.Category == "Purity" ? "#007bff" : "#e9ecef"); color: @(Model.Category == "Purity" ? "white" : "#333");">Rough Purity</a>
+    </div>
+
+    @if (!string.IsNullOrEmpty(Model.Message))
+    {
+        <div style="background-color: #d4edda; color: #155724; padding: 10px; border-radius: 4px; margin-bottom: 15px;">@Model.Message</div>
+    }
+    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+    {
+        <div style="background-color: #f8d7da; color: #721c24; padding: 10px; border-radius: 4px; margin-bottom: 15px;">@Model.ErrorMessage</div>
+    }
+
+    <!-- Add / Edit Box -->
+    <div style="border: 1px solid @(Model.IsEditing ? "#ffc107" : "#ccc"); padding: 15px; border-radius: 6px; margin-bottom: 25px; background-color: @(Model.IsEditing ? "#fffdf5" : "#fdfdfd");">
+        <h4 style="margin-top: 0;">@(Model.IsEditing ? $"Edit (ID: {Model.EditId})" : $"Add New {Model.Category}")</h4>
+        <form method="post" asp-page-handler="@(Model.IsEditing ? "Update" : "Add")" style="display: flex; gap: 10px;">
+            <input type="hidden" asp-for="Category" />
+            @if (Model.IsEditing)
+            {
+                <input type="hidden" asp-for="EditId" />
+            }
+            <input type="text" asp-for="ItemName" placeholder="Enter value..." style="flex: 1; padding: 8px; border: 1px solid #ccc; border-radius: 4px;" required />
+            @if (Model.IsEditing)
+            {
+                <button type="submit" style="padding: 8px 16px; background-color: #ffc107; color: #212529; font-weight: bold; border: none; border-radius: 4px; cursor: pointer;">Update</button>
+                <a asp-page="/RoughMasters" asp-route-Category="@Model.Category" style="padding: 8px 12px; background-color: #6c757d; color: white; text-decoration: none; border-radius: 4px;">Cancel</a>
+            }
+            else
+            {
+                <button type="submit" style="padding: 8px 18px; background-color: #28a745; color: white; border: none; border-radius: 4px; cursor: pointer;">Save</button>
+            }
+        </form>
+    </div>
+
+    <!-- Table -->
+    <table style="width: 100%; border-collapse: collapse;">
+        <thead>
+            <tr style="background-color: #f1f1f1; text-align: left;">
+                <th style="padding: 10px; border: 1px solid #ddd; width: 70px;">ID</th>
+                <th style="padding: 10px; border: 1px solid #ddd;">@Model.Category Name</th>
+                <th style="padding: 10px; border: 1px solid #ddd; width: 150px; text-align: center;">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.Records)
+            {
+                <tr>
+                    <td style="padding: 8px; border: 1px solid #ddd;">@item.Id</td>
+                    <td style="padding: 8px; border: 1px solid #ddd; font-weight: 500;">@item.Name</td>
+                    <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">
+                        <div style="display: flex; gap: 6px; justify-content: center;">
+                            <a asp-page="/RoughMasters" asp-route-Category="@Model.Category" asp-route-editId="@item.Id" style="background-color: #ffc107; color: #212529; text-decoration: none; padding: 4px 8px; border-radius: 3px; font-size: 12px; font-weight: bold;">Edit</a>
+                            <form method="post" asp-page-handler="Delete" asp-route-id="@item.Id" onsubmit="return confirm('Delete @item.Name?');" style="margin: 0;">
+                                <input type="hidden" asp-for="Category" />
+                                <button type="submit" style="background-color: #dc3545; color: white; border: none; padding: 4px 8px; border-radius: 3px; font-size: 12px; cursor: pointer;">Delete</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

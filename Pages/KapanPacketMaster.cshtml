@@ -1,0 +1,105 @@
+﻿@page
+@model KapanPacketMasterModel
+@{
+    ViewData["Title"] = "Kapan Packet Creation";
+}
+
+<div style="max-width: 950px; margin: 30px auto; font-family: sans-serif;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h2>Kapan Packet Creation</h2>
+        <a asp-page="/Dashboard" style="text-decoration: none; color: #007bff; font-weight: bold;">← Back to Dashboard</a>
+    </div>
+
+    @if (!string.IsNullOrEmpty(Model.Message))
+    {
+        <div style="background-color: #d4edda; color: #155724; padding: 10px; border-radius: 4px; margin-bottom: 15px;">@Model.Message</div>
+    }
+    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+    {
+        <div style="background-color: #f8d7da; color: #721c24; padding: 10px; border-radius: 4px; margin-bottom: 15px;">@Model.ErrorMessage</div>
+    }
+
+    <!-- Packet Creation Form -->
+    <div style="border: 1px solid #ccc; padding: 20px; border-radius: 6px; margin-bottom: 30px; background-color: #fdfdfd;">
+        <h4 style="margin-top: 0; margin-bottom: 15px;">Create New Packet from Kapan</h4>
+        <form method="post" asp-page-handler="Add">
+            <div style="display: grid; grid-template-columns: 1fr 2fr 1fr; gap: 15px; margin-bottom: 15px;">
+                <div>
+                    <label style="display: block; font-size: 13px; margin-bottom: 4px;">Packet Date</label>
+                    <input type="date" asp-for="PacketDate" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;" required />
+                </div>
+                <div>
+                    <label style="display: block; font-size: 13px; margin-bottom: 4px;">Select Kapan (Available Balance)</label>
+                    <select asp-for="SelectedInwardID" asp-items="Model.InwardKapans" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;" required></select>
+                </div>
+                <div>
+                    <label style="display: block; font-size: 13px; margin-bottom: 4px;">Packet No (e.g. P1, P2)</label>
+                    <input type="text" asp-for="PacketNo" placeholder="P1" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;" required />
+                </div>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1.5fr 1fr 1fr 1fr; gap: 15px; align-items: end;">
+                <div>
+                    <label style="display: block; font-size: 13px; margin-bottom: 4px;">Assign Department</label>
+                    <select asp-for="SelectedDeptID" asp-items="Model.Departments" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px;" required></select>
+                </div>
+                <div>
+                    <label style="display: block; font-size: 13px; margin-bottom: 4px;">Pieces</label>
+                    <input type="number" asp-for="Pieces" value="1" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;" required />
+                </div>
+                <div>
+                    <label style="display: block; font-size: 13px; margin-bottom: 4px;">Carats</label>
+                    <input type="number" step="0.001" asp-for="Carats" placeholder="0.000" style="width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box;" required />
+                </div>
+                <div>
+                    <button type="submit" style="width: 100%; padding: 9px; background-color: #28a745; color: white; font-weight: bold; border: none; border-radius: 4px; cursor: pointer;">Create Packet</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Active Packets Table -->
+    <h4>Created Packets List</h4>
+    <table style="width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 14px;">
+        <thead>
+            <tr style="background-color: #f1f1f1; text-align: left;">
+                <th style="padding: 10px; border: 1px solid #ddd;">ID</th>
+                <th style="padding: 10px; border: 1px solid #ddd;">Date</th>
+                <th style="padding: 10px; border: 1px solid #ddd;">Packet Barcode / Name</th>
+                <th style="padding: 10px; border: 1px solid #ddd;">Current Dept</th>
+                <th style="padding: 10px; border: 1px solid #ddd; text-align: right;">Pcs</th>
+                <th style="padding: 10px; border: 1px solid #ddd; text-align: right;">Carats</th>
+                <th style="padding: 10px; border: 1px solid #ddd; text-align: center;">Status</th>
+                <th style="padding: 10px; border: 1px solid #ddd; text-align: center;">Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @if (Model.PacketList.Count == 0)
+            {
+                <tr><td colspan="8" style="padding: 15px; text-align: center; color: #888; border: 1px solid #ddd;">No packets created yet.</td></tr>
+            }
+            else
+            {
+                @foreach (var pkt in Model.PacketList)
+                {
+                    <tr>
+                        <td style="padding: 8px; border: 1px solid #ddd;">@pkt.KPID</td>
+                        <td style="padding: 8px; border: 1px solid #ddd;">@pkt.PacketDate.ToString("dd-MMM-yyyy")</td>
+                        <td style="padding: 8px; border: 1px solid #ddd; font-weight: bold; color: #0056b3;">@pkt.DisplayName</td>
+                        <td style="padding: 8px; border: 1px solid #ddd;">@pkt.DepartmentName</td>
+                        <td style="padding: 8px; border: 1px solid #ddd; text-align: right;">@pkt.CurrentPcs</td>
+                        <td style="padding: 8px; border: 1px solid #ddd; text-align: right; font-weight: bold;">@pkt.CurrentCarats.ToString("0.000")</td>
+                        <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">
+                            <span style="background-color: #e2e3e5; padding: 3px 8px; border-radius: 10px; font-size: 12px;">@pkt.CurrentStatus</span>
+                        </td>
+                        <td style="padding: 8px; border: 1px solid #ddd; text-align: center;">
+                            <form method="post" asp-page-handler="Delete" asp-route-id="@pkt.KPID" onsubmit="return confirm('Delete packet @pkt.DisplayName?');" style="margin: 0;">
+                                <button type="submit" style="background-color: #dc3545; color: white; border: none; padding: 4px 8px; border-radius: 3px; font-size: 12px; cursor: pointer;">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+</div>
